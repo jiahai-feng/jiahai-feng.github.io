@@ -1,0 +1,248 @@
+<!doctype html>
+
+<html lang="en-us">
+
+<head>
+  <title>Simpson&#39;s paradox</title>
+  <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="The HTML5 Herald" />
+<meta name="author" content="Jiahai Feng" /><meta property="og:title" content="Simpson&#39;s paradox" />
+<meta property="og:description" content="or Why Statistics is Scary Simpson&rsquo;s Paradox is something I&rsquo;ve come across here and there, but I never fully understood its implications until Peng Ding&rsquo;s Causal Inference class. Once I did, I became a lot less trusting of statistical correlations.
+The Paradox in Examples There are two real-life examples of Simpson&rsquo;s Paradox that Peng Ding went through. They are both present in the wikipedia page. Here is the gist:
+Case 1: Kidney stone treatments A study was conducted to compare the effectiveness of two treatments for kidney stones." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://jiahai-feng.github.io/posts/simpsons-paradox/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-05-10T22:49:39-07:00" />
+<meta property="article:modified_time" content="2023-05-10T22:49:39-07:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Simpson&#39;s paradox"/>
+<meta name="twitter:description" content="or Why Statistics is Scary Simpson&rsquo;s Paradox is something I&rsquo;ve come across here and there, but I never fully understood its implications until Peng Ding&rsquo;s Causal Inference class. Once I did, I became a lot less trusting of statistical correlations.
+The Paradox in Examples There are two real-life examples of Simpson&rsquo;s Paradox that Peng Ding went through. They are both present in the wikipedia page. Here is the gist:
+Case 1: Kidney stone treatments A study was conducted to compare the effectiveness of two treatments for kidney stones."/>
+
+<meta name="generator" content="Hugo 0.111.3">
+  
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://jiahai-feng.github.io/fontawesome/css/all.min.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+<link rel="stylesheet" type="text/css" href="/css/styles.css" />
+
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-171038022-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+</head>
+
+<body>
+  <div id="container">
+    <header style="margin-top:4em; margin-bottom:0;">
+      <h1 style="margin-bottom:0;">
+          <a href="/" style="text-decoration: none;">Jiahai Feng</a>
+      </h1>
+
+      <ul id="social-media">
+      </ul>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+        <li>
+            <a class="active" href="/posts/">
+                <i class="fa-li fa  fa-lg"></i><span>Posts</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="https://scholar.google.com/citations?user=vyB1pH4AAAAJ">
+                <i class="fa-li fa fa-lg"></i><span>Scholar</span>
+            </a>
+        </li>
+
+    </ul>
+</nav>
+
+
+    <main>
+
+
+
+
+<article>
+
+    <h1>Simpson&#39;s paradox</h1>
+
+    
+      <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2023-05-10T22:49:39-07:00">May 10, 2023</time>
+        </li>
+        
+        
+
+        
+
+        <li>8 minute read</li>
+    </ul>
+</aside>
+
+    
+
+    
+      
+<div class="featured_image">
+    <a href="https://jiahai-feng.github.io/posts/simpsons-paradox/" title="Simpson&#39;s paradox">
+        <img src="">
+    </a>
+</div>
+
+
+    
+
+    <h2 id="or-why-statistics-is-scary">or Why Statistics is Scary</h2>
+<p>Simpson&rsquo;s Paradox is something I&rsquo;ve come across here and there, but I never fully understood its implications until Peng Ding&rsquo;s Causal Inference class. Once I did, I became a lot less trusting of statistical correlations.</p>
+<h2 id="the-paradox-in-examples">The Paradox in Examples</h2>
+<p>There are two real-life examples of Simpson&rsquo;s Paradox that Peng Ding went through. They are both present in the <a href="https://en.wikipedia.org/wiki/Simpson%27s_paradox#Examples">wikipedia page</a>. Here is the gist:</p>
+<h3 id="case-1-kidney-stone-treatments">Case 1: Kidney stone treatments</h3>
+<p>A study was conducted to compare the effectiveness of two treatments for kidney stones. The study looked at historical clinical data of people who underwent either treatment and computed their success rates. Treatment A was more aggressive than treatment B, and the doctors expected treatment A to be more effective. However, the study found that overall, people who underwent treatment A actually had lower success rates than people who underwent treatment B. What gives?</p>
+<p>It turned out that the severity of the kidney stones affected whether doctors prescribed treatment A or treatment B. Patients who underwent treatment A tended to have more challenging conditions to begin with, and thus ended up having lower success rates. The &ldquo;correct&rdquo; way (based on contextual medical knowledge) to interpret the data was to first condition on disease severity, and then evaluate treatment effectiveness.</p>
+<h3 id="case-2-uc-berkeley-graduate-admissions">Case 2: UC Berkeley Graduate Admissions</h3>
+<p>The 1973 admissions data for the graduate schools of UC Berkeley was studied, and researchers found that women had a far lower admission rate than men. The difference was absurd (35% for women vs 44% for men). Here, admission rate simply referred to the proportion of applicants of that gender that was admitted. Reading the results of this study today, we are probably not surprised that there could be significant systematic bias against women, especially in the old days of 1973.</p>
+<p>Interestingly, when researchers tried to identify the offending departments at UC Berkeley most responsible for the bias, they could not find any department that significantly exhibited bias against women - in fact, they found some statistical evidence that on the departmental level, some departments exhibited a small bias against men. Here, all they were doing different from the initial analysis was to look at the admission rates at a per department level. What gives?</p>
+<p>It turned out that women, more than men, tended to apply to more selective departments. Even though individual departments were relatively unbiased, having more women apply to selective departments lowered the overall admission rates of women when aggregated over the entire school.</p>
+<h2 id="simpsons-paradox-in-the-abstract">Simpson&rsquo;s Paradox in the Abstract</h2>
+<p>In general, suppose you have a real variable $Y$ that you care about (e.g. success rates of treatment or admission rates), and some covariate $X$ (e.g. treatment type or gender). The paradox occurs when you get one trend if you analyze the dependence of $Y$ on $X$, but a completely different one if you analyze the dependence of $Y$ on $X$, <em>conditioned on another covariate $Z$</em>.</p>
+<p>Mathematically, in the abstract, it seemed obvious to me that the marginal distribution $P_{X, Y}(x, y)$ could look completely different from the conditioned distributions $P_{X, Y | Z}(x, y | z)$ for any choice of $z$. That is to say, I was not surprised by the mathematical statement of Simpson&rsquo;s Paradox.</p>
+<p>However, the practical implications were what I didn&rsquo;t appreciate fully. What I realize now is that any time I have a set of joint data for two variables $X$ and $Y$, and I want to do some kind of regression to find the dependence of $Y$ on $X$, I should be extremely afraid of drawing any conclusion on the real relationship between $Y$ and $X$ that exists in the underlying data generating process.</p>
+<p>The moral of the two stories presented above is that you should pay extreme attention to the control variables, because any variable you don&rsquo;t control could end up confounding the results and possibly entirely negate your entire conclusion. In these two cases, we are fortunate to have domain knowledge to understand which variables are the &ldquo;natural&rdquo; variables to control and hence condition on when making statistical analyses. <em>The strength of the statistical conclusions are only as strong as the often implicit assumptions that go into modeling which variables are important enough to be controlled.</em> In the admissions case, it seemed fitting to control for department, but what about other variables such as the level of preparation, aptitude, tenancity, or other qualities that a candidate might possess that make them a deserving admit? What if conditioning on these variables completely negate the gender bias conclusion again?</p>
+<h2 id="simpsons-paradox-in-ols">Simpson&rsquo;s Paradox in OLS</h2>
+<p>Here&rsquo;s a formulation of Simpson&rsquo;s paradox in Ordinary Least Squares (OLS). Suppose you have a bunch of data $(X, Y, Z)$. You find that</p>
+<p>$$Y \sim \beta_0 X + \alpha_0 Z + \epsilon$$</p>
+<p>is the OLS fit. The $\beta_0$ you get here can be interpreted as the dependence of $Y$ on $X$ if we condition on $Z$. Contrast this with the $\beta_1$ you obtain from fitting</p>
+<p>$$Y \sim \beta_1 X + \epsilon,$$</p>
+<p>which you interpret as the aggregate dependence of $Y$ on $X$, without conditioning on $Z$.</p>
+<p>It&rsquo;s not difficult to imagine distributions of $(X, Y, Z)$ that lead to the Simpson&rsquo;s paradox arising, i.e. having $\beta_0$ and $\beta_1$ have opposite signs. These two graphs from Wikipedia give good hints on how they might be constructed: <a href="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Simpson%27s_paradox_continuous.svg/440px-Simpson%27s_paradox_continuous.svg.png">Graph 1</a>, <a href="https://en.wikipedia.org/wiki/File:Simpsons_paradox_-_animation.gif">Graph 2</a></p>
+<h2 id="simpsons-paradox-in-ols-every-where">Simpson&rsquo;s Paradox in OLS, every where</h2>
+<p>I initially assumed that you need specially constructed distributions to exhibit Simpson&rsquo;s paradox, but after thinking about it for a while, I realized that that <em>any distribution</em> of $(X, Y, Z)$ can exhibit Simpson&rsquo;s paradox if we get to choose which variable to control.</p>
+<p>The setup is as follows:</p>
+<p>Suppose, as above, I have data $(X, Y, Z)$ and I&rsquo;m interested in how $Y$ depends on $X$. My expert friend tells me that $Z$ is the important variable to control for, and so I perform the OLS fit:
+$$Y \sim \beta_0 X + \alpha_0 Z + \epsilon$$</p>
+<p>I show this to my other expert friend, who then says that $Z$ is the wrong variable to condition on. What I need to condition on is the variable $$Z&rsquo; = Z + 2\frac{\beta_0}{\alpha_0}X.$$</p>
+<p>Now, if I do the OLS fit
+$$ Y \sim \beta_2 X + \alpha_2 Z&rsquo; + \epsilon,$$
+I will find that $\alpha_2 = \alpha_0$, but $\beta_0=-\beta_2$. (Proof in footnotes${}^1.) $ The dependence of $Y$ on $X$, under a different set of control variables, has completely reversed! Simpson&rsquo;s paradox${}^2$ thus lurks in every distribution, and we have to be <strong>constantly vigilant</strong>!</p>
+<p>In practice, if we suspect that any variable that we are unable to control for (perhaps because of experimental limitations) is strongly correlated with one of the covariates we&rsquo;re studying, then we should be extremely cautious of any result that arises from statistical analyses - you might even say that the conclusions are useless.</p>
+<h2 id="philosophical-musings">Philosophical musings</h2>
+<p>Simpson&rsquo;s paradox was presented in Peng Ding&rsquo;s class to essentially motivate the entire field of Causal Inference. His presentation certainly shook me - I was aware that correlation does&rsquo;t mean causation, but I didn&rsquo;t know it is <em>this bad</em>. In addition, the complete dependence of the OLS coefficient on the choice of control variable invalidates any study that does not systematically investigate every possible confounder and justify its choice of control variables. I am more mistrustful of observational studies and also have become more cautious when applying statistics in my own work.</p>
+<p>Particularly in the study of <em>mechanistic interpretability</em>, I often encounter complex deterministic systems. It&rsquo;s extremely unclear in many situations where strictly speaking, everything is perfectly correlated${}^3$, to determine what are the correct variables to control, manipulate, or measure. Sometimes, I just make a choice and hope that it is good enough, but this exploration into Simpson&rsquo;s paradox has made me more cautious about these decisions and how much I trust my results.</p>
+<p>As a final word, I want to reiterate how scary doing statistics really is. In the two examples, we are fortunate to have domain expertise that gives some sense of what the &ldquo;correct&rdquo; control variables are or what the &ldquo;correct&rdquo; results should be. What if we don&rsquo;t have domain expertise, or if our domain expertise contains false beliefs? To echo my takeaway from earlier:</p>
+<blockquote>
+<p>The strength of the statistical conclusions are only as strong as the often implicit assumptions that go into modeling control variables.</p>
+</blockquote>
+<h3 id="footnotes">Footnotes</h3>
+<ol>
+<li>Here&rsquo;s a quick proof. Ditch the above notation. Let $Y\in \mathbb{R}^{n\times 1}$, $X\in \mathbb{R}^{n\times d}$ be the data that we have with $n$ data points and $d$ dimensional covariates. Let $\beta\in \mathbb{R}^{d\times 1}$ be the minimizer for $||Y-X\beta||^2$. Then, for any invertible $M\in \mathbb{R}^{d\times d}$, $||Y-X\beta||^2 = ||Y-XMM^{-1}\beta||^2$. This means that the OLS solution for $(Y, XM)$ is $M^{-1} \beta$. Substitute relevant values of $M$ and we&rsquo;re done.</li>
+<li>Technically, Simpson&rsquo;s paradox usually refers to reversing trends when taking aggregates vs conditioning on a specific variable, whereas here we reverse trends by conditioning on two different variables. However, you can easily recover the aggregate setting by changing the story so that the first expert friend recommends not conditioning on anything at all, and the second expert friend recommends conditioning on $$Z&rsquo;&rsquo; = Z + \frac{\beta_0 + \beta_1}{\alpha_0}X.$$</li>
+<li>To muse even further, the world itself is a deterministic system (if you consider the wavefunction of the universe). What are the implicit assumptions about the world we&rsquo;re making every time we do causal inference?</li>
+</ol>
+
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        <li>
+        
+            <a href="https://jiahai-feng.github.io/posts/cache-oblivious-algorithms/"><i class="fa fa-chevron-circle-left"></i> Cache Oblivious Algorithms</a>
+        
+        </li>
+        <li>
+        
+        </li>
+    </ul>
+</section>
+  
+    
+    
+  
+
+
+
+
+
+</main>
+    <footer>
+        <ul>
+            <li>
+                <h6>
+                    Rendered by <a href="https://gohugo.io" title="Hugo">Hugo</a>
+            </li>
+            
+            
+        </ul>
+    </footer>
+</div>
+<script src="/js/scripts.js"></script>
+
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-171038022-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+
+</body>
+
+</html>
+
