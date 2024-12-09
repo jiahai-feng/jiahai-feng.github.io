@@ -1,0 +1,313 @@
+<!doctype html>
+
+<html lang="en-us">
+
+<head>
+  <title>Cache Oblivious Algorithms</title>
+  <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="The HTML5 Herald" />
+<meta name="author" content="Jiahai Feng" /><meta property="og:title" content="Cache Oblivious Algorithms" />
+<meta property="og:description" content="Cache-Oblivious Algorithms Cache-oblivious algorithms seemed incredible to me when I first heard about it in 6.854 (Advanced Algorithms). It&rsquo;s relatively straightforward to imagine algorithms that utilizes information about page size $B$ and cache size $M$ to create efficient data structures. However, cache-oblivious algorithms are algorithms that achieve similar efficiencies without knowing $B$ or $M$. That means the same cache-oblivious algorithm can be run on computers with different cache or page sizes and still achieve the same asymptotic efficiency as one that is tailored to that specific cache." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://jiahai-feng.github.io/posts/cache-oblivious-algorithms/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2020-05-10T22:49:39-07:00" />
+<meta property="article:modified_time" content="2020-05-10T22:49:39-07:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Cache Oblivious Algorithms"/>
+<meta name="twitter:description" content="Cache-Oblivious Algorithms Cache-oblivious algorithms seemed incredible to me when I first heard about it in 6.854 (Advanced Algorithms). It&rsquo;s relatively straightforward to imagine algorithms that utilizes information about page size $B$ and cache size $M$ to create efficient data structures. However, cache-oblivious algorithms are algorithms that achieve similar efficiencies without knowing $B$ or $M$. That means the same cache-oblivious algorithm can be run on computers with different cache or page sizes and still achieve the same asymptotic efficiency as one that is tailored to that specific cache."/>
+
+<meta name="generator" content="Hugo 0.111.3">
+  
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://jiahai-feng.github.io/fontawesome/css/all.min.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+<link rel="stylesheet" type="text/css" href="/css/styles.css" />
+
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-171038022-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+</head>
+
+<body>
+  <div id="container">
+    <header style="margin-top:4em; margin-bottom:0;">
+      <h1 style="margin-bottom:0;">
+          <a href="/" style="text-decoration: none;">Jiahai Feng</a>
+      </h1>
+
+      <ul id="social-media">
+      </ul>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+        <li>
+            <a class="active" href="/posts/">
+                <i class="fa-li fa  fa-lg"></i><span>Posts</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="https://scholar.google.com/citations?user=vyB1pH4AAAAJ">
+                <i class="fa-li fa fa-lg"></i><span>Scholar</span>
+            </a>
+        </li>
+
+    </ul>
+</nav>
+
+
+    <main>
+
+
+
+
+<article>
+
+    <h1>Cache Oblivious Algorithms</h1>
+
+    
+      <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2020-05-10T22:49:39-07:00">May 10, 2020</time>
+        </li>
+        
+        
+
+        
+
+        <li>13 minute read</li>
+    </ul>
+</aside>
+
+    
+
+    
+      
+<div class="featured_image">
+    <a href="https://jiahai-feng.github.io/posts/cache-oblivious-algorithms/" title="Cache Oblivious Algorithms">
+        <img src="">
+    </a>
+</div>
+
+
+    
+
+    <h1 id="cache-oblivious-algorithms">Cache-Oblivious Algorithms</h1>
+<p>Cache-oblivious algorithms seemed incredible to me when I first heard about it in 6.854 (Advanced Algorithms). It&rsquo;s relatively straightforward to imagine algorithms that utilizes information about page size $B$ and cache size $M$ to create efficient data structures. However, cache-oblivious algorithms are algorithms that achieve similar efficiencies <em>without knowing $B$ or $M$</em>. That means the same cache-oblivious algorithm can be run on computers with different cache or page sizes and still achieve the same asymptotic efficiency as one that is tailored to that specific cache. The key to many of these algorithms is a recursive, fractal-like idea. I&rsquo;ll describe a cache-oblivious algorithm for searching in a list of integers.</p>
+<h1 id="whats-a-cache---the-external-memory-model">What&rsquo;s a cache? - The External Memory Model</h1>
+<p>Here&rsquo;s the set up. (TLDR at bottom) A program executes on the processor, but the input data resides on the disk. We can think of a disk as a really long linear array of data, but accessing it is really expensive. So, we instead invent this notion of a cache - a layer of memory of $M$ bits that is much smaller, but a lot faster to read/write to. For performance reasons, we will divide the disk and cache into blocks of $B$ bits, called pages, and we will transfer data between cache and disk a page at a time.</p>
+<p>This cache sits between the processor and the disk, and the processor will never directly read or write to the disk. When the processor wants to read a piece of data that is not on the cache (this is called a cache miss), it will trigger some mechanism that copies the relevant page from the disk to the cache first, <em>evicting another page if the cache is full</em>, and then read from the cache.</p>
+<p>How might this help? Well, trivially, if the entire set of data that the program needs fits in the cache, conceivably the processor could have fetched it all in the cache, paid the one-off cost, and then for the rest of the program the processor will never have to pay the expensive cost of reading from disk. Of course most programs require more data than that, and so we want to design algorithms that minimize cache misses.</p>
+<h2 id="cache-management">Cache management</h2>
+<p>However, the way computers are set up restricts the tools we have to achieve this. Programs executing on the processor have no explicit control over the cache. Instead, conceptually, programs continue to send read and write requests to the disk as though there is no cache. The processor intercepts these requests, and performs the necessary cache operations to serve the information. In other words, the cache is transparent to programs.  Thus, the task of reducing cache misses decomposes into two orthogonal components: writing efficient algorithms by cleverly ordering or specifying memory accesses, and efficient cache management.</p>
+<p>For example, an efficient algorithm might try to shuffle memory accesses around so that memory accesses to a particular memory address are clumped together, increasing the likelihood that there will be a cache hit. In fact, because of the paging system, it would doubly help if memory accesses to the same <em>spatial region</em> are clumped together, because there&rsquo;s a chance they&rsquo;ll be on the same page.</p>
+<p>On the other hand, efficient cache management entails trying to predict which piece of data to evict from the cache when there is a cache miss and we want to load more data into an already full cache. Since we&rsquo;re focusing on the algorithm this article, we assume that the cache manager has magic oracle powers that lets it discard <em>optimally</em>, so from the algorithm design standpoint, if there exists a sequence of cache loads/writes that achieves our desired performance, we assume that the cache manager will do it. It turns out that this is not unreasonable, because simple techniques such as the Least Recently Used algorithm work <em>really</em> well. (An exposition on this deserves its own article.)</p>
+<p>To summarize, the components of the external memory model are:</p>
+<ul>
+<li>Disk, effectively unbounded in size, stores data in pages of size $B$</li>
+<li>Cache, stores $M/B$ pages, each page has size $B$</li>
+<li>Processor executes algorithm, also manages cache.</li>
+<li>Algorithm runs on the processor. When data is needed, the processor transparently loads the required page into the cache if there&rsquo;s a cache miss, or serve the cached data if there isn&rsquo;t</li>
+</ul>
+<p>There are efficient algorithms that require explicit knowledge of $B$ and $M$, and there cache-oblivous algorithms that are just as efficient, but some how do not. That is to say, the algorithm performs the same actions and requests the same sequence of memory accesses, that works efficiently no matter what size $B$ and $M$ really are. We&rsquo;ll take a close look at the latter here.</p>
+<h1 id="a-trivial-example-scanning">A trivial example: scanning</h1>
+<p>Let&rsquo;s say we want to scan through a list of $N$ integers, to do some task, say finding the maximum. If the list occupy a contiguous block of memory on the disk, this can be done efficiently by loading pages one at a time, and scanning through the page before loading the next page. This thus takes $O(N/B)$ disk accesses, and is quite clearly optimal.</p>
+<p>Suppose the algorithm does not know $B$. It can achieve the same efficiency by simply reading the elements of the list in order. The CPU will then fetch the first page to the cache, containing elements $0$ to $B-1$ and pass it to the program, and then when the program requires element $B$, it&rsquo;ll read in the next page, which contains elements $B$ to $2B-1$, possibly overwriting the earlier page. This will just continue until all $N/B$ pages are read. This is cache-oblivious, because the algorithm of sequentially reading the elements is the same regardless of what $B$ is.</p>
+<p>Note that in this example, it is essential that the list is stored in a contiguous block of memory. Had the elements been scattered around like in a linked-list, each access could potentially trigger a cache miss, since there&rsquo;s no guarantee that neighboring elements will be on the same page. This may seem obvious, but this is the main mechanism by which we can write efficient algorithms - coming up with efficient layouts of data.</p>
+<h1 id="a-puzzle-searching">A puzzle: Searching</h1>
+<p>Now, let&rsquo;s consider the problem of searching for an integer in a list. We&rsquo;ll examine three ways of doing this.</p>
+<h2 id="inefficient-cache-oblivious-algorithm-binary-search">Inefficient cache-oblivious algorithm: Binary search</h2>
+<p>Let&rsquo;s assume the data is sorted in a list, and packed contiguously on the disk. A possible algorithm is then to perform binary search, which typically takes $O(\log N)$ reads. The binary search can be viewed a successively narrowing an interval in which the query value may reside in. However, once the interval that the binary search is narrowing is $O(B)$, the entire interval may reside in a page, and no further page accesses are required. Thus, we require only $O(\log N - \log B)$ page accesses. Notice that this is a cache-oblivious algorithm because the algorithm doesn&rsquo;t know what $B$ is - to the algorithm, it&rsquo;s just running a standard binary search.</p>
+<h2 id="efficient-but-not-cache-oblivious-b-trees">Efficient, but not cache-oblivious: B-trees</h2>
+<p>Suppose we know $B$ ahead of time. We can achieve $O(\log_B N)$ page accesses. We arrange the list in the format of a B-tree, a generalized BST. Similar to a BST, each subtree of a B-tree corresponds to a contiguous subset of the elements of the list when sorted by value. However, each node $V$ of the tree contains not one, but $B$ elements, which splits the interval corresponding to the subtree rooted at node $V$ into not 2, but $B+1$ intervals. Then, we can traverse down the BST, and each time we go down one level we reduce the interval by a factor of $B$. This thus requires only $O(\log_B N) = O(\log N / \log B)$ page accesses. In reality of course, we have to store pointers and possibly other metadata in each node, so we can&rsquo;t have exactly $B$ elements in each node, but we can definitely split by $\Theta(B)$ each level.</p>
+<h2 id="efficient-cache-oblivious-algorithm-van-emde-boas-layout">Efficient cache-oblivious algorithm: van Emde Boas layout</h2>
+<p>Now we come to the exciting part. We claim that we can achieve $O(\log_B N)$ page accesses, but without having to know $B$ ahead of time. The data structure we&rsquo;re using is a good old balanced Binary Search Tree. However, the order in which we store the nodes in memory matters. If we pack the the BST in a regular fashion, say in breadth-first order, we could potentially have a situation where almost every vertex in a BST search path, except for the first few, lies in a different page, and thus we&rsquo;ll have to use $O(\log N - \log B)$ page accesses. The van Embde Boas layout is basically a clever way of ordering the vertices of a binary search tree in a recursive, fractal-like manner such that each page access will fetch the next few vertices that will be queried, so that the next few accesses will be contained within that page.</p>
+<h3 id="concise-definition">Concise definition</h3>
+<figure><img src="/images/van-embde-boas-layout-labelled.PNG"
+         alt="One application of the recursive van Embde Boas layout"/><figcaption>
+            <p>One application of the recursive van Embde Boas layout</p>
+        </figcaption>
+</figure>
+
+<p>For convenience, suppose the binary tree is complete and has height $H=2^K$. The layout is a permutation of the vertices of the binary tree. Denote $T(x, k)$ as the subtree of height $2^k$, rooted at vertex $x$. If the subtree at $x$ is deeper than $2^k$, then $T(x,k)$ will be the subtree truncated to the required depth. Denote $L(x, k)$ as the layout for that subtree. Then, for some root vertex $x$, of a (sub-)tree with height $h=2^k$, $L(x, k)$ is defined recursively as:</p>
+<p>$$L(x, k) = L(x, k-1) \circ L(l_1, k-1) \circ L(l_2, k-1) \circ \dots \circ L(l_{n}, k-1)$$</p>
+<p>Where, $l_1, \dots, l_{n}$ are the $n=2^{h/2}$ children of the leaves of $T(x, k-1)$, and $\circ$ is just concatenation. One application of this recursion is shown above.</p>
+<h3 id="visual-sketch">Visual sketch</h3>
+<p>If you didn&rsquo;t catch that, don&rsquo;t worry about it. Here&rsquo;s a walkthrough. Suppose we&rsquo;re given a complete binary tree of height $h=2^k$, rooted at $x$. We want to compute $L(x, k)$, which is a permutation of the vertices in this binary tree. Here&rsquo;s how it&rsquo;s done:</p>
+<figure><img src="/images/veb-step0.PNG"
+         alt="Initial tree"/><figcaption>
+            <p>Initial tree</p>
+        </figcaption>
+</figure>
+
+<ol>
+<li>Cut all the edges between the $2^{k-1}$-th and $2^{k-1}+1$-th layer. This gives us:
+<ul>
+<li>$2^{h/2}$ smaller BSTs with height $2^{k-1}$. These are the children subtrees now disconnected from the main subtree, rooted at vertices $l_1$ to $l_n$, where $n=2^{h/2}$</li>
+<li>One more BST with height $2^{k-1}$, which is the what&rsquo;s left of the main subtree, now truncated in depth</li>
+</ul>
+</li>
+</ol>
+<figure><img src="/images/veb-step1.PNG"
+         alt="Partition tree"/><figcaption>
+            <p>Partition tree</p>
+        </figcaption>
+</figure>
+
+<ol start="2">
+<li>Apply recursive procedure $L(\cdot, k-1)$ to obtain layouts for each of the $n + 1$ BSTs</li>
+<li>Concatenate the layouts and return (the order doesn&rsquo;t actually matter)
+<figure><img src="/images/veb-step2.PNG"
+         alt="Concatenate sub-layouts"/><figcaption>
+            <p>Concatenate sub-layouts</p>
+        </figcaption>
+</figure>
+</li>
+</ol>
+<h3 id="sierpinski-triangles-atoms-and-time">Sierpinski triangles, atoms and time</h3>
+<p>Now this tells us how to construct the layout, but it&rsquo;ll be more helpful to develop some intuition about what this layout looks like.</p>
+<p>An intuitive way to look at this is to draw analogy to the Sierpinski triangle, which can be constructed by repeatedly applying the same partitioning procedure to a full triangle. We can view successive partitioning as an evolution in time. Similar to the Sierpinski triangle, the layout partitions the subtree into smaller subtrees, and then recursively applies the same procedure to each smaller subtree.</p>
+<figure><img src="/images/sierpinski-triangle-evolution.png"
+         alt="Evolution of Sierpinski Triangle (Wikimedia Commons)"/><figcaption>
+            <p>Evolution of Sierpinski Triangle (Wikimedia Commons)</p>
+        </figcaption>
+</figure>
+
+<p>This analogy gives us some insights. Recursion is typically viewed as a depth-first process, as most programming languages implement it that way. This leads us to instinctively follow a recursion branch deeper and deeper, but this doesn&rsquo;t really give us the intuition we need to understand this. Instead, we can adopt the perspective that the Sierpinsiki triangle gives, and we instead <em>limit the recursion depth</em>. This is akin to expanding the recursion in a <em>breadth-first</em> rather than a <em>depth-first</em> manner.</p>
+<p>To put things concretely, let $t$ be the recursion depth limit. We introduce a term &lsquo;atom&rsquo; for the subtree unit that the recursion partitions into at depth $t$. For $t=0$, the recursion is completely unexpanded, and the atom is the whole tree. Quite trivially, all vertices in this atom are placed in a contiguous range in the final layout.</p>
+<figure><img src="/images/veb-step0.PNG"
+         alt="Recursion depth is 0. The atom is the whole tree"/><figcaption>
+            <p>Recursion depth is 0. The atom is the whole tree</p>
+        </figcaption>
+</figure>
+
+<p>Next, to step into $t=1$, we evaluate one layer of the recursion. The atoms are now subtrees of height $2^{k-1}$. The concatenation process joins the layouts of the individual atoms, so we can safely say that in the final layout, all vertices in the same atom are in a contiguous segment. Notice that for this property to hold, it doesn&rsquo;t matter which order we joined the layouts of the atoms in as long as we don&rsquo;t break an atom up.</p>
+<figure><img src="/images/veb-step1.PNG"
+         alt="Recursion depth is 1. The atoms are subtrees of height $2^{k-1}$"/><figcaption>
+            <p>Recursion depth is 1. The atoms are subtrees of height $2^{k-1}$</p>
+        </figcaption>
+</figure>
+
+<p>Now, we evaluate one more layer of the recursion for $t=2$. The atoms are now subtrees of height $2^{k-2}$. For the same reasoning as before, in the final layout, all vertices in the same atom are in a contiguous segment.</p>
+<figure><img src="/images/veb-recur.PNG"
+         alt="Recursion depth is 2. The atoms are subtrees of height $2^{k-2}$"/><figcaption>
+            <p>Recursion depth is 2. The atoms are subtrees of height $2^{k-2}$</p>
+        </figcaption>
+</figure>
+
+<p>And this process continues until the atoms are individual vertices.
+Thus, if we limit the recursion depth, we can view the recursive calls to the layout as successively partioning the tree into finer and finer atoms. More precisely, in the evolution for the van Embde Boas layout, after applying $t$ levels of recursive calls, all vertices are partitioned into subtrees of height $2^{K-t}$. This perspective lets us say something powerful about the atoms:</p>
+<blockquote>
+<p>In the final layout, we can choose any resolution to look at the layout. All vertices in any atom at this resolution will be in a contiguous segment.</p>
+</blockquote>
+<h3 id="algorithm">Algorithm</h3>
+<p>At this point, you might already have a pretty good idea of what the algorithm is. Given this layout, the cache-oblivious algorithm is the straightforward algorithm that traverses down this BST. Now, let&rsquo;s analyze more formally why this is efficient.</p>
+<p>Suppose the page size is $B$. Every time step, the height of atoms halves. We&rsquo;re interested in the height of the atoms at the first time step where an entire atom can fit in a page. Since the number of vertices in a complete binary tree grows exponentially with height, that happens when atoms have height $\Theta(\log B)$. Then, analysing the layout at this resolution, we can fit any atom (which all have the same height of $\Theta(\log B)$) into the cache with 1 page load*.</p>
+<p>Then, now consider what happens in a search. A search basically consists of a path from the root of the BST to some leaf*. This path will spend some time in the first atom, until it reaches the leaf of the atom and goes into the next atom, and so forth. Since the path always start at the root vertex of an atom and ends on a leaf, it will spend $\Theta(\log B)$ steps in that atom. Since the overall search path is $\log N$ steps long, we&rsquo;ll need $O(\frac{\log N}{\log B}) = O(\log_B N)$ atoms, and that&rsquo;s the number of page accesses we need.</p>
+<h2 id="remarks">Remarks</h2>
+<p>The heart of the algorithm is the fractal nature of the van Embde Boas layout, which gives some kind of scale invariance. This idea of geometric scaling is actually a pretty common argument in algorithm analysis, but I find this particular instance incredibly visual and vivid. I was guilty of cutting a few corners here, and I&rsquo;ve marked some of the more egregious parts with an asterix. Nonetheless, I hope I was able to convey the main intuition in this article and if you&rsquo;re interested in the details I glossed over or reading more about cache-oblivious algorithms, I&rsquo;d recommend Erik Demaine&rsquo;s awesome and accessible <a href="http://erikdemaine.org/papers/BRICS2002/paper.pdf">review paper</a>.</p>
+<p>Edit: <a href="https://news.ycombinator.com/item?id=23662434">hacker news discussion</a></p>
+
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        <li>
+        
+        </li>
+        <li>
+        
+            <a href="https://jiahai-feng.github.io/posts/simpsons-paradox/">Simpson&#39;s paradox <i class="fa fa-chevron-circle-right"></i> </a>
+        
+        </li>
+    </ul>
+</section>
+  
+    
+    
+  
+
+
+
+
+
+</main>
+    <footer>
+        <ul>
+            <li>
+                <h6>
+                    Rendered by <a href="https://gohugo.io" title="Hugo">Hugo</a>
+            </li>
+            
+            
+        </ul>
+    </footer>
+</div>
+<script src="/js/scripts.js"></script>
+
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-171038022-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+
+</body>
+
+</html>
+
